@@ -1,0 +1,83 @@
+receivers:
+  # 接收来自应用的OTLP数据（场景1）
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+  # 接收Prometheus Exporter的数据（场景2）
+  prometheus:
+    config:
+      scrape_configs:
+        # - job_name: 'mysql-monitoring'
+        #   scrape_interval: 10s
+        #   metrics_path: "/probe"
+        #   params: 
+        #     target: 
+        #       - "mysql1:3306"
+        #     auth_module:
+        #       - "client"
+        #   static_configs:
+        #     - targets: ['mysqld_exporter:9104']
+        #       labels:
+        #         host_name: shippers
+        #         instance : instance1
+          # relabel_configs:
+          #   - source_labels: [__address__]
+          #     target_label: __param_target
+          #   - source_labels: [__param_target]
+          #     target_label: instance
+          #   - target_label: __address__
+          #     # The mysqld_exporter host:port
+          #     replacement: mysqld_exporter:9104
+        - job_name: 'mysql-instance2-monitoring'
+          #host_name: 'local'
+          scrape_interval: 10s
+          #metrics_path: '/probe?target=mysql:3306&auth_module=client'
+          metrics_path: "/probe"
+          params: 
+            target: 
+              - "mysql:3306"
+            auth_module:
+              - "client.local"
+          static_configs:
+            - targets: ['mysqld_exporter:9104']
+              labels:
+                host_name: shippers
+                instance: 127.0.0.1:3306|local
+                job_name: mysql-monitoring
+        # - job_name: "apisix-monitoring"
+        #   scrape_interval: 15s # This value will be related to the time range of the rate function in Prometheus QL. The time range in the rate function should be at least twice this value.
+        #   metrics_path: "/apisix/metrics"
+        #   static_configs:
+        #     - targets: ["apisix:9091"]
+        #       labels:
+        #         skywalking_service: shippers
+
+processors:
+  batch:
+    timeout: 10s
+
+exporters:
+  debug:
+    verbosity: detailed
+    sampling_initial: 5
+    sampling_thereafter: 200
+  # 导出到SkyWalking的OTLP接收器
+  otlp/skywalking:
+    endpoint: skywalking-oap-server:11800 # SkyWalking OTLP gRPC地址
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/skywalking]
+    metrics:
+      receivers: [otlp, prometheus]
+      processors: [batch]
+      exporters: [otlp/skywalking]

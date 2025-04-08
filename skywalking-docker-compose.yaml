@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  skywalking-oap-server:
+    image: apache/skywalking-oap-server:10.2.0
+    container_name: skywalking-oap-server
+    ports:
+      - "11800:11800"
+      - "1234:1234"
+      - "12800:12800"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl http://localhost:12800/internal/l7check" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - ./download-mysql.sh:/download-mysql.sh  ## mysql驱动下载脚本
+      - /mnt/d/Docker/skywalking/data:/usr/local/skywalking/data
+      #- /mnt/d/Docker/mysql/mysql-connector-j.jar:/skywalking/oap-libs/mysql-connector-j.jar
+        #- /mnt/d/Docker/skywalking/config:/usr/local/skywalking/config
+    
+    environment:
+      SW_STORAGE: mysql
+      SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest?rewriteBatchedStatements=true&allowMultiQueries=true
+      SW_DATA_SOURCE_USER: root
+      SW_DATA_SOURCE_PASSWORD : 123456
+      TZ: Asia/Shanghai
+      SW_HEALTH_CHECKER: default
+      JAVA_OPTS: "-Xms2048m -Xmx2048m"
+    entrypoint: ['bash', '-c', '/download-mysql.sh /skywalking/oap-libs && /skywalking/docker-entrypoint.sh']
+    networks:
+      - apisix-network
+
+  skywalking-ui:
+    image: apache/skywalking-ui:10.2.0
+    container_name: skywalking-ui
+    ports:
+      - "7777:8080"  # 将 SkyWalking UI 的端口映射到主机的 11801 端口
+    environment:
+      - SW_OAP_ADDRESS=http://skywalking-oap-server:12800
+    depends_on:
+      skywalking-oap-server: 
+        condition: service_healthy
+    networks:
+      - apisix-network
+
+networks:
+  apisix-network:
+    external: true
+    name: docker-apisix_apisix  # 假设 docker-apisix_apisix 所在的网络名为 docker-apisix_default

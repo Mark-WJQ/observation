@@ -1,0 +1,4 @@
+mysqld_exporter:
+  data_source_names:
+    - "root:123456@(localhost:3306)/"
+    - "shippers_exporter_ci:QawXH6XPZxuwsZrWhJWh@(172.31.10.58:3306)/"

@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  fluentbit:
+    image: fluent/fluent-bit:4.0
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ../mysql/data:/tmp/skywalking-logs
+      - ./fluentbit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+      - ./fluentbit/fluent-bit-parser.conf:/fluent-bit/etc/fluent-bit-parser.conf
+      - ./fluentbit/fluent-bit-script.lua:/fluent-bit/etc/fluent-bit-script.lua
+    networks:
+      - apisix-network
+networks:
+  apisix-network:
+    external: true
+    name: docker-apisix_apisix  # 假设 docker-apisix_apisix 所在的网络名为 docker-apisix_default
