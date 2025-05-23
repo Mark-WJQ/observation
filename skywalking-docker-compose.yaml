@@ -8,6 +8,9 @@ services:
       - "11800:11800"
       - "1234:1234"
       - "12800:12800"
+      - "9090:9090"
+      - "3100:3100"
+      - "9412:9412"
     healthcheck:
       test: [ "CMD-SHELL", "curl http://localhost:12800/internal/l7check" ]
       interval: 30s
@@ -28,6 +31,7 @@ services:
       TZ: Asia/Shanghai
       SW_HEALTH_CHECKER: default
       JAVA_OPTS: "-Xms2048m -Xmx2048m"
+      SW_QUERY_ZIPKIN: default
     entrypoint: ['bash', '-c', '/download-mysql.sh /skywalking/oap-libs && /skywalking/docker-entrypoint.sh']
     networks:
       - apisix-network

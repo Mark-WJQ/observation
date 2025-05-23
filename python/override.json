@@ -1,0 +1,44 @@
+{
+    "tasks": [
+        {
+            "routeid": "shippers-api-route",
+            "override": {
+                "routes": {
+                    "host": "qa-shippers.nucarf.tech",
+                    "upstream_id": "shippers-common-be-java-shippers-bff-api"
+                },
+                "upstreams": {
+                    "nodes": [
+                        {
+                            "host": "172.31.100.5",
+                            "port": 8080,
+                            "weight": 100
+                        }
+                    ],
+                    "id": "shippers-common-be-java-shippers-bff-api",
+                    "name": "shippers-common-be-java-shippers-bff-api"
+                }
+            }
+        },
+        {
+            "routeid": "shippers-h5-route",
+            "override": {
+                "routes": {
+                    "host": "qa-shippers.nucarf.tech",
+                    "upstream_id": "shippers-common-fe-h5-shipper-h5"
+                },
+                "upstreams": {
+                    "nodes": [
+                        {
+                            "host": "172.31.100.5",
+                            "port": 11104,
+                            "weight": 100
+                        }
+                    ],
+                    "id": "shippers-common-fe-h5-shipper-h5",
+                    "name": "shippers-common-fe-h5-shipper-h5"
+                }
+            }
+        }
+    ]
+}

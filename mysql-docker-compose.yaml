@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8.4.3
+    ports:
+      - 3306:3306
+    environment:
+      - TZ=Asia/Shanghai
+      - MYSQL_ROOT_PASSWORD=123456
+    volumes:
+      - /mnt/d/Docker/wsl/mysql/log:/logs
+      - /mnt/d/Docker/wsl/mysql/conf/my.cnf:/etc/mysql/my.cnf
+      - /mnt/d/Docker/wsl/mysql/data:/var/lib/mysql
+    networks:
+      - apisix-network
+networks:
+  apisix-network:
+    name: docker-apisix_apisix  # 假设 docker-apisix_apisix 所在的网络名为 docker-apisix_default
+    
