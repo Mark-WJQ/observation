@@ -39,6 +39,201 @@
                     "name": "shippers-common-fe-h5-shipper-h5"
                 }
             }
+        },
+        {
+            "routeid": "shippers-pc-route",
+            "override": {
+                "routes": {
+                    "host": "qa-shippers.nucarf.tech",
+                    "upstream_id": "shippers-common-fe-pc-shippers-pc"
+                },
+                "upstreams": {
+                    "nodes": [
+                        {
+                            "host": "172.31.100.5",
+                            "port": 11103,
+                            "weight": 100
+                        }
+                    ],
+                    "id": "shippers-common-fe-pc-shippers-pc",
+                    "name": "shippers-common-fe-pc-shippers-pc"
+                }
+            }
+        },
+        {
+            "routeid": "shippers-yzs-dispatch-h5-route",
+            "override": {
+                "routes": {
+                    "host": "qa-shippers.nucarf.tech",
+                    "upstream_id": "shippers-common-fe-h5-yzs-dispatch-h5"
+                },
+                "upstreams": {
+                    "nodes": [
+                        {
+                            "host": "172.31.100.5",
+                            "port": 11105,
+                            "weight": 100
+                        }
+                    ],
+                    "id": "shippers-common-fe-h5-yzs-dispatch-h5",
+                    "name": "shippers-common-fe-h5-yzs-dispatch-h5"
+                }
+            }
+        },
+        {
+            "routeid": "shippers-wjy-vip-h5-route",
+            "override": {
+                "routes": {
+                    "host": "qa-shippers.nucarf.tech",
+                    "upstream_id": "shippers-common-fe-h5-wjy-vip-h5"
+                },
+                "upstreams": {
+                    "nodes": [
+                        {
+                            "host": "172.31.100.5",
+                            "port": 11101,
+                            "weight": 100
+                        }
+                    ],
+                    "id": "shippers-common-fe-h5-wjy-vip-h5",
+                    "name": "shippers-common-fe-h5-wjy-vip-h5"
+                }
+            }
+        },{
+            "routeid": "shippers-yzs-h5-route",
+            "override": {
+                "routes": {
+                    "host": "qa-shippers.nucarf.tech",
+                    "upstream_id": "shippers-common-fe-h5-yzs-h5"
+                },
+                "upstreams": {
+                    "nodes": [
+                        {
+                            "host": "172.31.100.5",
+                            "port": 11102,
+                            "weight": 100
+                        }
+                    ],
+                    "id": "shippers-common-fe-h5-yzs-h5",
+                    "name": "shippers-common-fe-h5-yzs-h5"
+                }
+            }
+        },
+        {
+            "routeid": "shippers-unified-nyb-route",
+            "override": {
+                "routes": {
+                    "host": "qa-shippers.nucarf.tech",
+                    "upstream_id": "yzs2-one-stop-gateway-service"
+                },
+                "upstreams": {
+                    "nodes": [
+                        {
+                            "host": "172.31.101.3",
+                            "port": 8501,
+                            "weight": 100
+                        }
+                    ],
+                    "id": "yzs2-one-stop-gateway-service",
+                    "name": "yzs2-one-stop-gateway-service"
+                }
+            }
+        },
+        {
+            "routeid": "shippers-wjy-api-route",
+            "override": {
+                "routes": {
+                    "host": "qa-shippers.nucarf.tech"
+                }
+            }
+        },
+        {
+            "routeid": "shippers-wjy-web-api-route",
+            "override": {
+                "routes": {
+                    "host": "qa-shippers.nucarf.tech"
+                }
+            }
+        },
+        {
+            "routeid": "shippers-unify-dispatch-h5-route",
+            "override": {
+                "routes": {
+                    "upstream_id": "unify-dispatch-fe-h5-unify-dispatch-h5",
+                     "hosts": [
+                        "qa-shippers.nucarf.tech",
+                        "qa-unify-dispatch.nucarf.tech"
+                    ]
+                },
+                "upstreams": {
+                    "nodes": [
+                        {
+                            "host": "172.31.100.9",
+                            "port": 11100,
+                            "weight": 100
+                        }
+                    ],
+                    "id": "unify-dispatch-fe-h5-unify-dispatch-h5",
+                    "name": "unify-dispatch-fe-h5-unify-dispatch-h5"
+                }
+            }
+        },{
+            "routeid": "shippers-yzs-rest-route",
+            "override": {
+                "routes": {
+                    "host": "qa-shippers.nucarf.tech",
+                    "upstream_id": "yzs2-one-stop-gateway-service"
+                },
+                "upstreams": {
+                    "nodes": [
+                        {
+                            "host": "172.31.101.3",
+                            "port": 8501,
+                            "weight": 100
+                        }
+                    ],
+                    "id": "yzs2-one-stop-gateway-service",
+                    "name": "yzs2-one-stop-gateway-service"
+                }
+            }
+        },{
+            "routeid": "shippers-unified-etc-route",
+            "override": {
+                "routes": {
+                    "host": "qa-shippers.nucarf.tech",
+                    "upstream_id": "data-statistics"
+                },
+                "upstreams": {
+                    "nodes": [
+                        {
+                            "host": "172.31.101.3",
+                            "port": 8501,
+                            "weight": 100
+                        }
+                    ],
+                    "id": "data-statistics",
+                    "name": "data-statistics"
+                }
+            }
+        },{
+            "routeid": "shippers-dispatch-default-route",
+            "override": {
+                "routes": {
+                    "host": "qa-shippers.nucarf.tech",
+                    "upstream_id": "unify-dispatch-fe-h5-unify-dispatch-h5"
+                },
+                "upstreams": {
+                    "nodes": [
+                        {
+                            "host": "172.31.101.3",
+                            "port": 8501,
+                            "weight": 100
+                        }
+                    ],
+                    "id": "unify-dispatch-fe-h5-unify-dispatch-h5",
+                    "name": "unify-dispatch-fe-h5-unify-dispatch-h5"
+                }
+            }
         }
     ]
 }

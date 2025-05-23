@@ -61,7 +61,9 @@ python apisix_sync.py --batch-file <批量任务文件.json>
 ## 📄 参数详解
 
 ### 1. `--override` 配置覆盖规则
-采用 JSON 格式，支持以下语法：
+采用 JSON 格式，支持以下语法（新增完整资源类型示例）：
+
+#### 🔄 资源类型完整示例
 ```json
 {
   "routes": {
@@ -76,8 +78,31 @@ python apisix_sync.py --batch-file <批量任务文件.json>
   "upstreams": {
     "id": "prod_upstream",
     "nodes": [               // 修改上游节点
-      {"host": "10.0.0.1"}
+      {"host": "10.0.0.1", "weight": 100}
     ]
+  },
+  "consumers": {
+    "id": "prod_consumer",   // 指定新ID
+    "plugins": {
+      "key-auth": {          // 更新认证插件
+        "key": "new_api_key"
+      }
+    }
+  },
+  "plugin_configs": {
+    "id": "prod_plugin_conf",// 指定新ID
+    "plugins": {
+      "jwt": {               // 完整插件配置覆盖
+        "secret": "new_secret_key"
+      }
+    }
+  },
+  "services": {
+    "id": "prod_service",    // 指定新ID
+    "timeout": {             // 修改超时设置
+      "connect": 6000,
+      "read": 6000
+    }
   }
 }
 ```
@@ -90,14 +115,40 @@ python apisix_sync.py --batch-file <批量任务文件.json>
       "routeid": "route_001",
       "upstreamid": "upstream_001",
       "override": {
-        "routes": {"host": "new.domain.com"},
-        "upstreams": {"nodes": [{"host": "10.0.0.1"}]}
+        "routes": {"id": "prod_route_001"},
+        "upstreams": {
+          "id": "prod_upstream",
+          "nodes": [{"host": "10.0.0.1"}]
+        },
+        "consumers": {
+          "id": "prod_consumer",
+          "plugins": {
+            "key-auth": {"key": "new_api_key"}
+          }
+        },
+        "plugin_configs": {
+          "plugins": {
+            "jwt": {"secret": "new_secret_key"}
+          }
+        }
       }
     },
     {
       "routeid": "route_002",
       "override": {
-        "routes": {"id": "new_route_id"} // 仅替换ID
+        "routes": {
+          "host": "h5.prod.com",
+          "plugins": {
+            "redirect": {
+              "http_to_https": true
+            }
+          }
+        },
+        "services": {
+          "timeout": {
+            "connect": 5000
+          }
+        }
       }
     }
   ]
@@ -108,115 +159,95 @@ python apisix_sync.py --batch-file <批量任务文件.json>
 
 ## 📚 使用示例
 
-### 示例1：基础同步
-```bash
-python apisix_sync.py --routeid dev_route_001
-```
-同步 dev 环境的 `dev_route_001` 路由及其关联资源（自动发现上游/服务等）
-
-### 示例2：带配置覆盖
+### 示例4：同步消费者配置
 ```bash
 python apisix_sync.py \
     --routeid dev_route_001 \
     --override '{
-        "routes": {
-            "id": "prod_route_001",
-            "host": "api.prod.com"
-        },
-        "upstreams": {
-            "nodes": [{"host": "10.0.0.1"}]
+        "consumers": {
+            "id": "prod_consumer",
+            "plugins": {
+                "key-auth": {
+                    "key": "new_api_key"
+                }
+            }
         }
     }'
 ```
 同步时：
-- 将路由ID改为 `prod_route_001`
-- 修改域名到 `api.prod.com`
-- 替换上游节点IP
+- 将消费者ID改为 `prod_consumer`
+- 更新认证密钥为 `new_api_key`
 
-### 示例3：批量同步
+### 示例5：同步插件配置
 ```bash
-python apisix_sync.py --batch-file batch_tasks.json
+python apisix_sync.py \
+    --routeid dev_route_001 \
+    --override '{
+        "plugin_configs": {
+            "plugins": {
+                "jwt": {
+                    "secret": "new_secret_key",
+                    "exp": 3600
+                }
+            }
+        }
+    }'
 ```
-
-**batch_tasks.json** 内容：
-```json
-{
-  "tasks": [
-    {
-      "routeid": "route_001",
-      "override": {
-        "routes": {"id": "prod_route_001"},
-        "upstreams": {"nodes": [{"host": "10.0.0.1"}]}
-      }
-    },
-    {
-      "routeid": "route_002",
-      "override": {
-        "routes": {"host": "h5.prod.com"}
-      }
-    }
-  ]
-}
-```
+同步时：
+- 使用新ID创建插件配置
+- 更新JWT签名密钥和过期时间
 
 ---
 
 ## ⚠️ 注意事项
 
-1. **环境变量**  
-   可通过环境变量自定义环境配置：
+### 新增资源类型处理说明
+1. **消费者冲突**  
    ```bash
-   export APISIX_OFFLINE_URL=http://dev.apisix.admin
-   export APISIX_ONLINE_URL=http://prod.apisix.admin
-   ```
-
-2. **冲突处理**  
-   如果遇到线上已存在同名资源，会输出类似提示：
-   ```
    !!!!!!!!!!!!!!!! 冲突报告 !!!!!!!!!!!!!!!!
-   - routes: prod_route_001
-   - upstreams: dev_upstream
-   请通过 --override 参数修改这些资源的ID：
+   - consumers: prod_consumer
+   请通过 --override 参数修改消费者ID：
    {
-     "routes": {"id": "new_prod_route_001"},
-     "upstreams": {"id": "new_dev_upstream"}
+     "consumers": {"id": "new_prod_consumer"}
    }
    ```
 
-3. **字段清理**  
-   自动移除 `create_time` 和 `update_time` 等只读字段
+2. **插件配置冲突**  
+   ```bash
+   !!!!!!!!!!!!!!!! 冲突报告 !!!!!!!!!!!!!!!!
+   - plugin_configs: dev_plugin_conf
+   请通过 --override 参数修改插件配置ID：
+   {
+     "plugin_configs": {"id": "new_plugin_conf"}
+   }
+   ```
 
-4. **路由状态**  
-   自动启用路由（设置 `status: 0`）
-
-5. **安全机制**  
-   不会覆盖已有配置，遇到冲突资源会提示重新指定ID
+3. **字段覆盖优先级**  
+   所有字段覆盖遵循：
+   - 先应用ID映射
+   - 再合并其他字段
+   - 插件配置深度合并
 
 ---
 
 ## 🧪 常见问题排查
 
-1. **权限问题**  
+### 新增资源类型问题
+1. **消费者缺失**  
    ```bash
-   {"message":"invalid API key"}
+   "Failed to get route dependencies: consumer_id not found"
    ```
-   解决方案：检查 `X-API-KEY` 的值是否与 APISIX 配置一致
+   解决方案：确认路由是否启用了认证插件（如jwt/key-auth）
 
-2. **依赖缺失**  
+2. **插件配置无效字段**  
    ```bash
-   "未找到任何关联资源"
+   "同步失败：400 - invalid configuration"
    ```
-   解决方案：确认路由是否关联了上游/插件等必要配置
-
-3. **JSON格式错误**  
-   ```bash
-   "覆盖配置必须是有效的JSON格式"
-   ```
-   解决方案：使用 [JSON校验工具](https://jsonlint.com/) 检查格式
+   解决方案：检查插件配置字段是否符合插件要求（如jwt需要secret字段）
 
 ---
 
-## 📐 同步顺序
+## 📐 同步顺序（完整版）
 1. 消费者（Consumers）
 2. 上游服务（Upstreams）
 3. 插件配置（Plugin Configs）
@@ -225,38 +256,58 @@ python apisix_sync.py --batch-file batch_tasks.json
 
 ---
 
-## 📝 输出日志说明
-| 日志前缀 | 说明 |
-|----------|------|
-| `[INFO]` | 操作步骤 |
-| `[SUCCESS]` | 成功信息 |
-| `[PROCESS]` | 处理步骤 |
-| `[OVERRIDE]` | 配置覆盖 |
-| `[SYNC]` | 同步操作 |
-| `[WARNING]` | 冲突警告 |
-| `[FAILED]` | 错误信息 |
+## 📝 输出日志说明（新增资源类型）
+| 日志前缀 | 示例输出 | 说明 |
+|----------|---------|------|
+| `[INFO]` | `正在查询线下consumers/prod_consumer...` | 显示各资源类型处理 |
+| `[SUCCESS]` | `获取到有效配置\n{"username": "test_user"}` | 展示各资源原始配置 |
+| `[OVERRIDE]` | `应用自定义配置覆盖：{"plugins": {"key-auth": {"key": "new_api_key"}}` | 显示各资源类型覆盖 |
 
 ---
 
-## 📦 目录结构建议
-```
-/apisix-sync/
-├── apisix_sync.py          # 主程序
-├── batch_tasks.json       # 批量任务文件（示例）
-└── .env                   # 环境变量配置（可选）
-```
+## 💡 最佳实践（新增部分）
+1. **消费者管理**  
+   ```bash
+   # 批量任务文件中统一修改消费者ID
+   {
+     "tasks": [
+       {
+         "routeid": "route_001",
+         "override": {
+           "consumers": {
+             "id": "prod_${consumer_id}",  // 使用原始ID作为前缀
+             "plugins": {
+               "key-auth": {
+                 "key": "prod_${consumer_id}_key"  // 动态生成密钥
+               }
+             }
+           }
+         }
+       }
+     ]
+   }
+   ```
 
----
-
-## 💡 最佳实践
-1. **测试环境**：先用 `--override` 指定新ID进行测试
-2. **生产环境**：使用批量文件集中管理同步任务
-3. **版本控制**：将批量任务文件纳入 Git 管理
-4. **自动化**：可配合 CI/CD 流程使用
+2. **插件配置版本控制**  
+   ```bash
+   # 为不同环境指定插件版本
+   {
+     "override": {
+       "plugin_configs": {
+         "plugins": {
+           "rate-limiting": {
+             "rate": 500,  // 开发环境限制较低
+             "burst": 100
+           }
+         }
+       }
+     }
+   }
+   ```
 
 ---
 
 ## 📚 相关文档
-- [APISIX Admin API 文档](https://apisix.apache.org/docs/apisix/admin-api/)
-- [JSON 格式说明](https://www.json.org/json-en.html)
-- [正则表达式教程](https://regex101.com/)
+- [APISIX Consumer 文档](https://apisix.apache.org/docs/apisix/consumer/)
+- [APISIX Plugin Config 文档](https://apisix.apache.org/docs/apisix/plugin-config/)
+- [APISIX Plugin List](https://apisix.apache.org/docs/apisix/plugins/bundled-plugins/)

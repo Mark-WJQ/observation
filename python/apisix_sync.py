@@ -165,8 +165,8 @@ def process_single_task(task_config, global_config):
         }
 
         # 验证至少有一个有效资源
-        if not any(final_resources.values()):
-            raise Exception("未找到任何关联资源，请检查路由配置或手动指定资源ID")
+        ##if not any(final_resources.values()):
+            ##raise Exception("未找到任何关联资源，请检查路由配置或手动指定资源ID")
 
         # 定义同步顺序
         sync_sequence = [
@@ -244,10 +244,10 @@ def main():
 
 
     config = {
-        "offline_url": os.getenv("APISIX_OFFLINE_URL", ""),
-        "online_url": os.getenv("APISIX_ONLINE_URL", ""),
-        "offline_key": os.getenv("APISIX_OFFLINE_ADMIN_KEY", ""),
-        "online_key": os.getenv("APISIX_ONLINE_ADMIN_KEY", "")
+        "offline_url": os.getenv("APISIX_OFFLINE_URL", "http://ci-apisix-admin.nucarf.tech"),
+        "online_url": os.getenv("APISIX_ONLINE_URL", "http://qa-apisix-admin.nucarf.tech"),
+        "offline_key": os.getenv("APISIX_OFFLINE_ADMIN_KEY", "edd1c9f034335f136f87ad84b625c8f1"),
+        "online_key": os.getenv("APISIX_ONLINE_ADMIN_KEY", "edd1c9f034335f136f87ad84b625c8f1")
     }
 
      # 新增批量处理逻辑
